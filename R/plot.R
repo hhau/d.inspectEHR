@@ -9,8 +9,6 @@
 #'
 #' @return
 #' @export
-#'
-#' @examples
 plot_age <- function(x) {
   x %>%
     mutate(age = cut(age, c(18, seq(20, 140, by = 5)))) %>%
@@ -35,8 +33,6 @@ plot_age <- function(x) {
 #'
 #' @return
 #' @export
-#'
-#' @examples
 plot_sex <- function(x) {
   x %>%
     group_by(gender_concept_id) %>%
@@ -65,8 +61,6 @@ plot_sex <- function(x) {
 #'
 #' @return
 #' @export
-#'
-#' @examples
 plot_ethnicity <- function(x) {
   x %>%
     mutate(
@@ -106,8 +100,6 @@ plot_ethnicity <- function(x) {
 #'
 #' @return
 #' @export
-#'
-#' @examples
 plot_visit_profile <- function(x) {
   x %>%
     mutate_at(vars(visit_start_datetime), ~ as.Date(.)) %>%
@@ -139,8 +131,6 @@ plot_visit_profile <- function(x) {
 #'
 #' @return
 #' @export
-#'
-#' @examples
 plot_tm <- function(tm, possible_states) {
 
   tm_fit <- as_tibble(tm$estimate@transitionMatrix) %>%
@@ -173,8 +163,6 @@ plot_tm <- function(tm, possible_states) {
 #'
 #' @return
 #' @export
-#'
-#' @examples
 theme_d <- function(...) {
   pct <- theme_bw(base_family = "sans", base_size = 11) %+replace%
     theme(
@@ -188,6 +176,3 @@ theme_d <- function(...) {
       axis.line = element_blank(),
       panel.grid = element_blank())
 }
-
-
-

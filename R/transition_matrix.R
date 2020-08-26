@@ -16,8 +16,6 @@
 #' @importFrom magrittr %>%
 #' @importFrom tidyr pivot_longer
 #' @importFrom stringr str_pad
-#'
-#' @examples
 transition_matrix <- function(overview, st, possible_states) {
 
   vd <- overview %>%

@@ -120,8 +120,6 @@ prepare_overview <- function(x) {
 #'
 #' @return
 #' @export
-#'
-#' @examples
 prepare_tally <- function(ctn, schema,
                           tbl_names = c(
                                         "person",
@@ -159,8 +157,6 @@ prepare_tally <- function(ctn, schema,
 #'
 #' @importFrom purrr imap
 #' @importFrom dplyr bind_rows filter left_join
-#'
-#' @examples
 prepare_null_counts <- function(st) {
 
   null_counts <- st %>%
@@ -183,8 +179,6 @@ prepare_null_counts <- function(st) {
 #'
 #' @return
 #' @export
-#'
-#' @examples
 prepare_cohort_boundaries <- function(x) {
   x %>%
     summarise(
@@ -214,4 +208,36 @@ prepare_cohort_boundaries <- function(x) {
         TRUE ~ "fail"
       )
     )
+}
+
+prepare_measurement_all <- function(connection, schema) {
+  meas <- tbl(ctn, in_schema(schema, "measurement")) %>%
+    group_by(measurement_concept_id) %>%
+    tally() %>%
+    collect() %>%
+    mutate(across(everything(), as.integer))
+
+  # Measurements that are in the roadmap & the DB
+  meas_in_ref <- meas$measurement_concept_id[meas$measurement_concept_id %in% dq_ref$concept_id]
+
+  # Measurements that are not in the roadmap but appear in the DB
+  meas_nin_ref <- meas$measurement_concept_id[!(meas$measurement_concept_id %in% dq_ref$concept_id)]
+
+  # Measurements that appear in the DB, but are not in the roadmap
+  meas_out <- dq_ref$concept_id[!(dq_ref$concept_id %in% meas$measurement_concept_id)]
+
+  meas_all <- sort(unique(c(meas_in_ref, meas_nin_ref, meas_out)))
+  meas_all <- mini_dict(ctn, schema, meas_all)
+
+  meas_all <- meas_all %>%
+    mutate(
+      status = case_when(
+        concept_id %in% meas_in_ref ~ "Onboarded",
+        concept_id %in% meas_out ~ "Pending",
+        concept_id %in% meas_nin_ref ~ "Not in roadmap"
+    )) %>%
+    select(concept_id, concept_name, status) %>%
+    arrange(concept_id) %>%
+    left_join(meas, by = c("concept_id" = "measurement_concept_id")) %>%
+    mutate(n = if_else(is.na(n), 0L, n))
 }

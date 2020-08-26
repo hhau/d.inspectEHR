@@ -1,5 +1,10 @@
 #' @importFrom shiny navbarPage tabPanel sidebarLayout sidebarPanel
-#'   checkboxInput mainPanel tabsetPanel tableOutput plotOutput
+#'   checkboxInput mainPanel tabsetPanel tableOutput plotOutput selectInput
+NULL
+choice_vec <- as.vector(dq_ref$concept_id)
+names(choice_vec) <- as.vector(dq_ref$long_name)
+choice_vec <- choice_vec[order(factor(names(choice_vec)))]
+
 ui <- navbarPage("QC report", id = "nav",
   tabPanel("Structural checks",
     sidebarLayout(
@@ -121,18 +126,17 @@ ui <- navbarPage("QC report", id = "nav",
         )
       )
     )
+  ),
+  tabPanel("Measurements",
+    sidebarLayout(
+      sidebarPanel(width = 4,
+        selectInput("measurement_label", "Measurement:", choices = choice_vec)
+      ),
+      mainPanel(width = 8,
+        tabsetPanel(
+          tabPanel("Distribution of times", plotOutput("measurement_trio"))
+        )
+      )
+    )
   )
-  # ,
-  # tabPanel("Measurements",
-  #   sidebarLayout(
-  #     sidebarPanel(width = 2,
-  #       checkboxInput("remove_negative", "Remove negative values", value = FALSE)
-  #     ),
-  #     mainPanel(width = 10,
-  #       tabsetPanel(
-  #         tabPanel("Distribution of times", tableOutput("measurements_phase_one"))
-  #       )
-  #     )
-  #   )
-  # )
 )

@@ -7,6 +7,8 @@ p <- NULL
 vo <- NULL
 vd <- NULL
 d <- NULL
+overview <- NULL
+meas_all <- NULL
 
 #' Launch the shiny version of the report
 #'
@@ -22,12 +24,12 @@ launch_shiny_report <- function(connection = NULL, schema = "decovid_omop") {
   ctn <- connection
 
   st <- prepare_tables(ctn, schema)
-  overview <- prepare_overview(st)
-
+  assignInMyNamespace('overview', prepare_overview(st))
   assignInMyNamespace('p', st[["person"]] %>% collect())
   assignInMyNamespace('vo', st[["visit_occurrence"]] %>% collect())
   assignInMyNamespace('vd', st[["visit_detail"]] %>% collect())
   assignInMyNamespace('d', st[["death"]] %>% collect())
+  assignInMyNamespace('meas_all', prepare_measurement_all(ctn, schema))
 
   runApp(
     list(ui = ui, server = server),
